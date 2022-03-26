@@ -1,0 +1,206 @@
+#! C:/Program Files/Nuke13.1v3/nuke-13.1.3.dll -nx
+#write_info Write1 file:"C:/Users/minami/Desktop/stroke-challenge/render/render.gif" format:"512 512 1" chans:":rgba.red:rgba.green:rgba.blue:rgba.alpha:beauty.alpha:beauty.blue:beauty.green:beauty.red:stroke.blue:stroke.green:stroke.red:" framerange:"1 180" fps:"0" colorspace:"default" datatype:"unknown" transfer:"unknown" views:"main" colorManagement:"OCIO"
+version 13.1 v3
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="0" w="2557" h="1378" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1894" stretch="1"/>
+            <splitter orientation="2">
+                <split size="784"/>
+                <splitter orientation="1">
+                    <split size="1894"/>
+                    <dock id="" activePageId="Viewer.2" focus="true">
+                        <page id="Viewer.1"/>
+                        <page id="Viewer.2"/>
+                    </dock>
+                </splitter>
+                <split size="552"/>
+                <dock id="" activePageId="DAG.1">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="615"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name C:/Users/minami/Desktop/stroke-challenge/comp.nk
+ frame 112
+ last_frame 180
+ lock_range true
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement OCIO
+ OCIO_config aces_1.2
+ defaultViewerLUT "OCIO LUTs"
+ workingSpaceLUT scene_linear
+ monitorLut ACES/sRGB
+ monitorOutLUT "sRGB (ACES)"
+ int8Lut matte_paint
+ int16Lut texture_paint
+ logLut compositing_log
+ floatLut scene_linear
+}
+Read {
+ inputs 0
+ file_type exr
+ file C:/Users/minami/Desktop/stroke-challenge/render/render.####.exr
+ format "512 512 0 0 512 512 1 square_512"
+ last 180
+ origlast 180
+ origset true
+ version 3
+ name Read1
+ xpos 180
+ ypos -381
+}
+set N5e39a800 [stack 0]
+Dot {
+ name Dot1
+ xpos 214
+ ypos -246
+}
+set N8542dc00 [stack 0]
+add_layer {stroke stroke.red stroke.green stroke.blue}
+Shuffle2 {
+ fromInput1 {{0} B}
+ in1 stroke
+ fromInput2 {{0} B}
+ mappings "4 stroke.red 0 0 rgba.red 0 0 stroke.green 0 1 rgba.green 0 1 stroke.blue 0 2 rgba.blue 0 2 black -1 -1 rgba.alpha 0 3"
+ name Shuffle1
+ xpos 180
+ ypos -33
+}
+Expression {
+ expr0 "r * -1"
+ expr1 "g * -1"
+ expr2 0
+ name Expression5
+ xpos 290
+ ypos -33
+}
+Blur {
+ channels rgb
+ size 17.5
+ name Blur1
+ xpos 400
+ ypos -33
+}
+push $N8542dc00
+Dot {
+ name Dot2
+ xpos 544
+ ypos -246
+}
+set N6bdc3c00 [stack 0]
+add_layer {beauty beauty.red beauty.green beauty.blue beauty.alpha}
+Shuffle2 {
+ fromInput1 {{0} B}
+ in1 beauty
+ fromInput2 {{0} B}
+ mappings "4 beauty.red 0 0 rgba.red 0 0 beauty.green 0 1 rgba.green 0 1 beauty.blue 0 2 rgba.blue 0 2 beauty.alpha 0 3 rgba.alpha 0 3"
+ name Shuffle4
+ xpos 510
+ ypos -201
+}
+Grid {
+ number 16
+ size 2.3
+ name Grid1
+ xpos 510
+ ypos -129
+}
+Shuffle2 {
+ inputs 2
+ fromInput1 {{1} B A}
+ in1 rgb
+ out1 forward
+ fromInput2 {{0} B A}
+ mappings "2 rgba.red 0 0 forward.u 0 0 rgba.green 0 1 forward.v 0 1"
+ name Shuffle2
+ xpos 510
+ ypos -33
+}
+IDistort {
+ channels rgb
+ uv forward
+ uv_scale 52.5
+ blur_scale 0
+ name IDistort1
+ xpos 510
+ ypos 15
+}
+push $N6bdc3c00
+Shuffle2 {
+ fromInput1 {{0} B}
+ in1 stroke
+ fromInput2 {{0} B}
+ mappings "4 stroke.red 0 0 rgba.red 0 0 stroke.green 0 1 rgba.green 0 1 stroke.blue 0 2 rgba.blue 0 2 black -1 -1 rgba.alpha 0 3"
+ name Shuffle3
+ xpos 620
+ ypos -249
+}
+Expression {
+ expr0 "(r + 1) * 0.5"
+ expr1 "(g + 1) * 0.5"
+ expr2 " (b + 1) * 0.5"
+ name Expression1
+ xpos 730
+ ypos -249
+}
+MergeExpression {
+ inputs 2
+ expr0 "A.r * B.r"
+ expr1 "A.g * B.g"
+ expr2 "A.b * B.b"
+ name MergeExpression1
+ xpos 730
+ ypos 15
+}
+set N84ae8800 [stack 0]
+Write {
+ file C:/Users/minami/Desktop/stroke-challenge/render/render.gif
+ name Write1
+ xpos 912
+ ypos 9
+}
+push $N84ae8800
+Grade {
+ white 1.04
+ multiply 1.74
+ name Grade1
+ xpos 730
+ ypos 75
+}
+Viewer {
+ frame 112
+ frame_range 1-180
+ viewerProcess "sRGB (ACES)"
+ name Viewer1
+ xpos 730
+ ypos 124
+}
+push $N5e39a800
+Viewer {
+ frame_range 1-180
+ channels stroke
+ viewerProcess "sRGB (ACES)"
+ name Viewer2
+ selected true
+ xpos 353
+ ypos -313
+}
